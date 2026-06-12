@@ -12,208 +12,381 @@ This package was primarily written by Chenglong Qin (clqin@xhu.edu.cn).
 
 The model is released under the MIT License.
 
-## Usage
-# h-BN Nanocluster (ABC Stacking) API Documentation
-> Document Version: v1.0
-> Based on Python + ASE + NumPy
-> Supported Structure: ABC-stacked hexagonal Boron Nitride (h-BN) nanocluster
+Parameter Documentation for Nanostructure Generation CodeThis object-oriented code generates graphene, twisted bilayer graphene (TBG), and carbon nanotubes (CNTs) based on the ASE library. Below is a full English summary of classes, parameters, methods and usage examples.1. Base Class: NanoAbstract base class providing common parameters, coordinate transformation, mathematical tools and basic structure functions for all carbon nanostructures.1.1 Constructor __init__()
 
-## 1. Project Overview
-This module implements **ABC-stacked h-BN nanocluster** construction, extended from the base `Nano` abstract class.
 
-### Supported Features
-- Monolayer / multi-layer h-BN cluster generation
-- Standard **ABC stacking (rhombohedral h-BN)**
-- Custom supercell, vacuum layer and periodic boundary conditions
-- Export VASP POSCAR file & 3D visualization via ASE
-- Fully compatible with existing graphene / twisted graphene / carbon nanotube framework
 
-### Basic Lattice Parameters
-| Parameter | Value | Description |
-| :--- | :--- | :--- |
-| B-N bond length | 1.45 Å | In-plane covalent bond length |
-| In-plane lattice constant | 2.51 Å | Primitive cell lattice parameter |
-| Interlayer spacing (ABC) | 3.33 Å | Vertical distance between adjacent layers |
-| Atom species | B, N | Alternating arrangement in honeycomb lattice |
 
-### ABC Stacking Rule
-- Layer A: `(0.0, 0.0)` fractional shift
-- Layer B: `(1/3, 1/3)` fractional shift relative to A
-- Layer C: `(-1/3, 2/3)` fractional shift relative to A
-- Cycle: `A → B → C → A` for multi-layer structures
 
-## 2. Dependencies
-```txt
-python >= 3.8
-numpy >= 1.21
-ase >= 3.22
-```
 
-**Installation Command**
-```bash
-pip install numpy ase
-```
 
-## 3. Class Architecture
-```
-Nano (Base Abstract Class)
-├─ Graphene
-├─ TwistGraphene
-├─ Nanotube
-└─ HBN_ABC (ABC-stacked h-BN Nanocluster)
-```
 
-## 4. Core Class: HBN_ABC
-### 4.1 Class Initialization
-```python
-class HBN_ABC(Nano):
-    def __init__(self, n, m, xy_period=[1, 1], xy_pbc=[True, True], 
-                 bond_length=1.45, atom_type=['B', 'N'], vacuum=8.0):
-```
 
-#### Input Parameters
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `n` | `int` | - | Lattice index along lattice vector `a1` |
-| `m` | `int` | - | Lattice index along lattice vector `a2` |
-| `xy_period` | `list[int]` | `[1, 1]` | Supercell repetition number along x, y |
-| `xy_pbc` | `list[bool]` | `[True, True]` | Periodic boundary conditions for x, y axis |
-| `bond_length` | `float` | `1.45` | B-N in-plane bond length (unit: Å) |
-| `atom_type` | `list[str]` | `['B', 'N']` | Atomic species for h-BN (fixed as B, N) |
-| `vacuum` | `float` | `8.0` | Vacuum layer thickness for z direction (unit: Å) |
 
-#### Inherited Internal Attributes
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `origin_n`, `origin_m` | `int` | Original input lattice indices |
-| `pbc` | `list[bool]` | 3D PBC: `[x, y, z]`, z is always `False` for clusters |
-| `period` | `list` | Supercell repetition for 3 directions |
-| `bond_length` | `float` | B-N bond length |
-| `vacuum` | `float` | Vacuum layer thickness |
 
----
 
-### 4.2 Main Method: get_structures()
-Generate ABC-stacked h-BN structure and return ASE `Atoms` object.
-```python
-def get_structures(self, layer_num=3, layer_spacing=3.33):
-```
 
-#### Input Parameters
-| Parameter | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `layer_num` | `int` | `3` | Total number of h-BN layers (3 = standard ABC 3-layer) |
-| `layer_spacing` | `float` | `3.33` | Vertical interlayer distance (unit: Å) |
 
-#### Built-in Stacking Offset
-Automatically assign in-plane shift for each layer (cyclic):
-1. Layer A: `(0.0, 0.0)`
-2. Layer B: `(1/3, 1/3)`
-3. Layer C: `(-1/3, 2/3)`
 
-#### Return Value
-- `ase.Atoms`: Standard ASE atomic structure object
-  - Support `.write()` to export VASP POSCAR file
-  - Support `view()` for 3D structure visualization
 
----
 
-### 4.3 Auxiliary Method: show_properties()
-```python
-def show_properties(self, layer_num=3):
-```
 
-#### Function
-Print formatted structural properties to console via `pprint`.
 
-#### Output Content
-- Periodic boundary conditions (PBC)
-- Supercell period
-- Lattice index `(n, m)`
-- B-N bond length
-- Total atom number
-- Layer count
-- Lattice chiral angle
 
----
 
-### 4.4 Private Core Methods (For Development)
-#### 1. _build_coords(translation)
-- **Function**: Generate fractional coordinates for single h-BN layer
-- **Input**: `translation: tuple[float, float]` — in-plane stacking offset
-- **Return**: Numpy array with format `[x, y, z, element]`
 
-#### 2. _get_properties(layer_num)
-- **Function**: Calculate lattice matrix, total atoms and structural properties
-- **Return**: Dictionary of all structural parameters
 
-#### 3. Inherited from Base Class `Nano`
-- `a1a2_to_ij()`: Convert oblique coordinates to Cartesian coordinates
-- `extended_gcd()`: Extended Euclidean algorithm for lattice tiling
-- `_get_structures()`: Convert coordinate array to standard ASE `Atoms` object
 
-## 5. Structure Description
-### 5.1 Lattice Cell
-- Cell type: Hexagonal lattice
-- 3D cell matrix: Auto-generated by `(n, m)` supercell
-- Z direction: Non-periodic + vacuum layer (designed for nanocluster)
 
-### 5.2 Atomic Arrangement
-1. Single layer: Honeycomb lattice, **B and N occupy two sublattices alternately**
-2. ABC stacking: Follow fixed fractional offsets
-3. Vertical direction: Uniform interlayer spacing
 
-### 5.3 Atom Count Rule
-```
-Total atoms = 2 × atoms_per_layer × layer_num
-```
-> 2 = Two sublattices (B + N)
 
-## 6. Usage Examples
-### 6.1 Standard 3-Layer ABC h-BN Cluster
-```python
-if __name__ == '__main__':
-    # Initialize model
-    model = HBN_ABC(n=6, m=6, xy_period=[1,1], xy_pbc=[True,True])
-    # Build structure
-    hbn_struct = model.get_structures(layer_num=3, layer_spacing=3.33)
-    # Print properties
-    model.show_properties(layer_num=3)
-    # Export VASP file
-    hbn_struct.write("hBN_ABC_3layer.vasp", format="vasp")
-    # Visualize
-    view(hbn_struct)
-```
 
-### 6.2 6-Layer Cyclic ABC Stacking
-```python
-# Stack: A-B-C-A-B-C
-model = HBN_ABC(n=8, m=8)
-struct = model.get_structures(layer_num=6, layer_spacing=3.33)
-struct.write("hBN_ABC_6layer.vasp", format="vasp")
-```
 
-### 6.3 Custom Vacuum & Bond Length
-```python
-# Vacuum = 10 Å, B-N bond = 1.46 Å
-model = HBN_ABC(n=5, m=5, bond_length=1.46, vacuum=10.0)
-struct = model.get_structures(layer_num=3)
-```
 
-## 7. Error Handling & Notes
-### 7.1 Common Exceptions
-- Shape error: Ensure `n` and `m` are positive integers
-- Atom type warning: Do not modify `['B', 'N']` arbitrarily for h-BN
 
-### 7.2 Important Notes
-1. Z-direction PBC is permanently disabled for nanocluster.
-2. ABC stacking offsets are fixed for standard h-BN, no manual adjustment needed.
-3. All length units: **Angstrom (Å)**.
-4. Fractional coordinates will be automatically wrapped into `[0, 1)` range.
-5. Fully compatible with the original `Nano` class series.
 
-## 8. Changelog
-| Version | Date | Update Content |
-| :--- | :--- | :--- |
-| v1.0 | 2026-06-12 | Initial release for ABC-stacked h-BN nanocluster |
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionUnit & NotenintChiral index nStandard index for carbon nanostructuresmintChiral index mStandard index for carbon nanostructuresperiodlistSupercell repetition [x, y, z]Lattice replication along three axespbclist[bool]Periodic boundary conditions [x, y, z]True: enable PBC; False: add vacuum layerbond_lengthfloatC-C bond lengthUnit: Å, default = 1.42 Åatom_typelistElement symbol of atomse.g. ['C'], ['C', 'B']vacuumfloatVacuum layer thicknessUnit: Å, applied to non-periodic directions1.2 General Methods
+rotation_a1a2(theta): 2D rotation matrix under oblique lattice basis (a1, a2). Input theta in radians.
+a1a2_to_ij(theta): Transformation matrix from oblique coordinates to Cartesian coordinates.
+rotation_ij(theta): Standard 2D rotation matrix in Cartesian system. Input theta in radians.
+extended_gcd(a, b): Extended Euclidean algorithm. Solve \(ax+by=\gcd(a,b)\), returns (gcd, x, y).
+_get_structures(): Generate ASE Atoms object with lattice, atomic positions, PBC and vacuum settings.
+_get_properties(): Calculate structural properties including chiral angle, bond length and PBC.
+show_properties(): Print structural parameters in console.
+2. Subclass: Graphene(Nano)For constructing single-layer and multi-layer stacked graphene (AA / AB / arbitrary stacking).2.1 Constructor __init__()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionDefault ValuenintChiral index n—mintChiral index m—pintComponent p of translation vector T—qintComponent q of translation vector T—xy_periodlistSupercell replication along x & y [nx, ny][1, 1]xy_pbclist[bool]PBC for x & y directions[True, True]bond_lengthfloatC-C bond length1.42 Åatom_typelistAtomic element['C']vacuumfloatVacuum layer thickness7.5 Å
+Internal logic: Z direction is automatically set to non-periodic with no replication.
+2.2 Main Method get_structures()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionRestrictionlayer_numintNumber of graphene layersMust match length of translationstranslationslist[tuple]In-plane offset for each layer (fractional coordinates)Format: [(x1,y1), (x2,y2), ...]layer_spacingfloatVertical interlayer distanceUnit: Å, typical value = 3.4 Å2.3 Private Methods
+_build_coords(): Generate fractional coordinates for single-layer graphene (A / B sublattice).
+_get_properties(): Calculate lattice matrix, total atom number, chiral angle and translation vectors.
+3. Subclass: TwistGraphene(Nano)For constructing twisted multi-layer graphene (TBG) with rotational misalignment between layers.3.1 Constructor __init__()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionDefault ValuenintChiral index n—mintChiral index m—xy_periodtupleSupercell replication (nx, ny)(1, 1)xy_pbclist[bool]PBC for x & y directions[True, True]bond_lengthfloatC-C bond length1.42 Åatom_typelistAtomic element['C']vacuumfloatVacuum layer thickness7.5 Å3.2 Main Method get_structures()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionRestrictionlayer_numintTotal number of layersLength must match translations & layer_sequencetranslationslist[tuple]In-plane offset for each layerFractional coordinateslayer_sequencelist[int]Layer type flag0: original layer; 1: rotated layerlayer_spacingfloatVertical interlayer distanceUnit: Å3.3 Notes
+Twist angle is automatically calculated from (n, m).
+Layer rotation is realized via Cartesian rotation matrix.
+_get_single_layer(): Generate coordinates for original or rotated graphene monolayer.
+4. Subclass: Nanotube(Nano)For constructing single-walled and multi-walled carbon nanotubes (CNTs); supports multiple tubes in one model.4.1 Constructor __init__()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptionDefault Valuenlist[int]List of chiral index n for each tubee.g. [15, 6] for two tubesmlist[int]List of chiral index m for each tubeSame length as nz_periodlist[int]Axial replication along tube axis (z)One value per tubez_pbcboolPBC along z-axis (tube axis)Truebond_lengthfloatC-C bond length1.42 Åatom_typelistAtomic element['C']vacuumfloatRadial vacuum thickness7.5 Å
+Rule: PBC is disabled for radial x & y directions by default.
+4.2 Main Method get_structures()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格ParameterTypeDescriptiontranslationlist[tuple]In-plane offset for each nanotubeLength equals total tube number4.3 Calculated Structural Properties
+chirality (n, m): Chiral indices
+diameter: Tube diameter (Å)
+length: Axial period length (Å)
+chiral_theta: Chiral angle (°)
+total_atom_num: Total number of atoms
+4.4 Coordinate Logic
+2D graphene plane is rolled into cylindrical coordinates to form CNT geometry.
+Atomic positions for A / B sublattices are calculated via rotation angle and axial shift.
+5. Default Global Parameters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+表格Physical QuantityDefault ValueRemarksC-C bond length1.42 ÅStandard value for carbon materialsVacuum layer7.5 ÅUsed for all non-periodic directionsGraphene interlayer distance3.4 ÅTypical van der Waals gap for graphiteDefault atom type['C']Pure carbon structure6. Code Usage Examples6.1 Multilayer Graphenepython运行model = Graphene(4, 2, -2, 6, xy_period=[1, 1], xy_pbc=[True, True])
+struct = model.get_structures(layer_num=3, translations=[(0, 0), (1/3, 1/3), (-1/3, 2/3)])
+
+Chirality: \(n=4, m=2\); Translation vector: \(p=-2, q=6\)
+3 layers with different in-plane shifts for varied stacking configurations
+6.2 Twisted Graphenepython运行model = TwistGraphene(4, 2, xy_period=[2, 2], xy_pbc=[True, True])
+struct = model.get_structures(layer_num=3, translations=[(0, 0), (0, 0), (0, 0)], layer_sequence=[1, 0, 1])
+
+Chirality: \(n=4, m=2\); 2×2 supercell in x-y plane
+3 layers: rotated layer → original layer → rotated layer
+6.3 Multi-Wall Carbon Nanotubespython运行model = Nanotube([15, 6], [15, 6], z_period=[5, 5], atom_type=['C'], z_pbc=False)
+struct = model.get_structures(translation=[(0, 0), (0, 0)])
+
+Two armchair CNTs: \((15,15)\) and \((6,6)\)
+5 times axial replication; PBC disabled along tube axis; no in-plane offset
