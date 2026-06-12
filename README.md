@@ -13,7 +13,7 @@ This package was primarily written by Chenglong Qin (clqin@xhu.edu.cn).
 The model is released under the MIT License.
 
 # Parameter Documentation for Nanostructure Generation Code
-This object-oriented code generates **graphene, twisted bilayer graphene (TBG), and carbon nanotubes (CNTs)** based on the ASE library. Below is a full English summary of classes, parameters, methods and usage examples.
+This object-oriented code generates **graphene, twisted bilayer graphene (TBG), and carbon nanotubes (CNTs)** based on the ASE library. Below is a full summary of classes, parameters, methods and usage examples.
 
 ## 1. Base Class: `Nano`
 Abstract base class providing common parameters, coordinate transformation, mathematical tools and basic structure functions for all carbon nanostructures.
@@ -145,6 +145,8 @@ For constructing **single-walled and multi-walled carbon nanotubes (CNTs)**; sup
 ---
 
 ## 6. Code Usage Examples
+For more examples, please refer to tutorial.ipynb.
+
 ### 6.1 Multilayer Graphene
 ```python
 model = Graphene(4, 2, -2, 6, xy_period=[1, 1], xy_pbc=[True, True])
@@ -168,47 +170,3 @@ struct = model.get_structures(translation=[(0, 0), (0, 0)])
 ```
 - Two armchair CNTs: $(15,15)$ and $(6,6)$
 - 5 times axial replication; PBC disabled along tube axis; no in-plane offset
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-表格Physical QuantityDefault ValueRemarksC-C bond length1.42 ÅStandard value for carbon materialsVacuum layer7.5 ÅUsed for all non-periodic directionsGraphene interlayer distance3.4 ÅTypical van der Waals gap for graphiteDefault atom type['C']Pure carbon structure6. Code Usage Examples6.1 Multilayer Graphenepython运行model = Graphene(4, 2, -2, 6, xy_period=[1, 1], xy_pbc=[True, True])
-struct = model.get_structures(layer_num=3, translations=[(0, 0), (1/3, 1/3), (-1/3, 2/3)])
-
-Chirality: \(n=4, m=2\); Translation vector: \(p=-2, q=6\)
-3 layers with different in-plane shifts for varied stacking configurations
-6.2 Twisted Graphenepython运行model = TwistGraphene(4, 2, xy_period=[2, 2], xy_pbc=[True, True])
-struct = model.get_structures(layer_num=3, translations=[(0, 0), (0, 0), (0, 0)], layer_sequence=[1, 0, 1])
-
-Chirality: \(n=4, m=2\); 2×2 supercell in x-y plane
-3 layers: rotated layer → original layer → rotated layer
-6.3 Multi-Wall Carbon Nanotubespython运行model = Nanotube([15, 6], [15, 6], z_period=[5, 5], atom_type=['C'], z_pbc=False)
-struct = model.get_structures(translation=[(0, 0), (0, 0)])
-
-Two armchair CNTs: \((15,15)\) and \((6,6)\)
-5 times axial replication; PBC disabled along tube axis; no in-plane offset
